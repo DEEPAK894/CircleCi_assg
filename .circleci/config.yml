@@ -1,67 +1,10 @@
-# version: 2.1
-
-# jobs:
-#   deploy-snowflake-changes-job:
-#     docker:
-#       - image: circleci/python:3.8
-
-#     environment:
-#       SF_ACCOUNT: LJYHXDV-HY17256
-#       SF_USERNAME: DEEPAK
-#       SF_ROLE: ACCOUNTADMIN
-#       SF_WAREHOUSE: COMPUTE_WH
-#       SF_DATABASE: SF_CICD
-#       SNOWFLAKE_PASSWORD: Deepu@822
-
-#     steps:
-#       - checkout
-
-#       - run:
-#           name: Use Python 3.8.x
-#           command: |
-#             echo "Python version: $(python --version)"
-      
-#       - run:
-#           name: Install schemachange
-#           command: |
-#             pip install schemachange
-
-#       - run:
-#           name: Run schemachange
-#           command: |
-#             echo "WORKING_DIRECTORY: $PWD"
-#             schemachange -f migrations -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE21.CHANGE_HISTORY --create-change-history-table
-#             SCHEMA_CHANGE_EXIT_CODE=$?
-            
-
-#       - run:
-#           name: Rollback schemachange on failure
-#           command: |
-#             if [ $SCHEMA_CHANGE_EXIT_CODE -ne 0 ]; then
-#               echo "Deployment failed. Rolling back changes..."
-#               CURRENT_VERSION="v2.0"
-#               for script in $(ls schema_changes/${CURRENT_VERSION}*.sql | sort -r); do
-#                 rollback_script="${script/v/${CURRENT_VERSION}_rollback}"
-#                 schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE21.CHANGE_HISTORY --create-change-history-table
-#               done
-#               exit $SCHEMA_CHANGE_EXIT_CODE
-#             fi
-
-# workflows:
-#   version: 2
-#   deploy:
-#     jobs:
-#       - deploy-snowflake-changes-job:
-#           filters:
-#             branches:
-#               only:
-#                 - main
 version: 2.1
 
 jobs:
   deploy-snowflake-changes-job:
     docker:
       - image: circleci/python:3.8
+
     environment:
       SF_ACCOUNT: LJYHXDV-HY17256
       SF_USERNAME: DEEPAK
@@ -84,22 +27,25 @@ jobs:
             pip install schemachange
 
       - run:
-          name: Run schemachange and handle errors
+          name: Run schemachange
           command: |
             echo "WORKING_DIRECTORY: $PWD"
-            set -e  # This ensures the script exits on any error
-            schemachange -f migrations -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE17.CHANGE_HISTORY --create-change-history-table
-            # If schemachange succeeds, SCHEMA_CHANGE_EXIT_CODE will be 0; otherwise, it will be the exit code of the failed command
+            schemachange -f migrations -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE21.CHANGE_HISTORY --create-change-history-table
             SCHEMA_CHANGE_EXIT_CODE=$?
+            
+
+      - run:
+          name: Rollback schemachange on failure
+          command: |
             if [ $SCHEMA_CHANGE_EXIT_CODE -ne 0 ]; then
               echo "Deployment failed. Rolling back changes..."
-              for script in $(find rollback_scripts/ -type f -name '*.sql' | sort -r); do
-                rollback_script_path="${script}"
-                schemachange -f $rollback_script_path -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE17.CHANGE_HISTORY --create-change-history-table
+              CURRENT_VERSION="v2.0"
+              for script in $(ls schema_changes/${CURRENT_VERSION}*.sql | sort -r); do
+                rollback_script="${script/v/${CURRENT_VERSION}_rollback}"
+                schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE21.CHANGE_HISTORY --create-change-history-table
               done
               exit $SCHEMA_CHANGE_EXIT_CODE
             fi
-
 
 workflows:
   version: 2
