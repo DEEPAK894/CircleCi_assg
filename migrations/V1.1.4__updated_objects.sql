@@ -7,4 +7,3 @@ CREATE TABLE users (
 );
 
 -- Rollback script: 001_rollback_create_table_users.sql
-DROP TABLE IF EXISTS users;
