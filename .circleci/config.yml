@@ -13,6 +13,7 @@ jobs:
       SF_DATABASE: SF_CICD
       SNOWFLAKE_PASSWORD: Deepu@822
 
+
     steps:
       - checkout
 
