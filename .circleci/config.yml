@@ -26,28 +26,43 @@ jobs:
           name: Install schemachange
           command: |
             pip install schemachange
-
       - run:
-          name: Run schemachange
+          name: Run schemachange and Rollback on failure
           command: |
-            echo "WORKING_DIRECTORY: $PWD"
-            schemachange -f migrations -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE21.CHANGE_HISTORY --create-change-history-table
-            SCHEMA_CHANGE_EXIT_CODE=$?
+           echo "WORKING_DIRECTORY: $PWD"
+           schemachange -f migrations -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE1.CHANGE_HISTORY --create-change-history-table
+           SCHEMA_CHANGE_EXIT_CODE=$?
+
+           if [ $SCHEMA_CHANGE_EXIT_CODE -ne 0 ]; then
+           echo "Deployment failed. Rolling back changes..."
+           for script in $(ls rollback_scripts/*.sql | sort -r); do
+           rollback_script="${script/V/_rollback}"
+           schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE1.CHANGE_HISTORY --create-change-history-table
+           done
+           exit $SCHEMA_CHANGE_EXIT_CODE
+           fi
+
+      # - run:
+      #     name: Run schemachange
+      #     command: |
+      #       echo "WORKING_DIRECTORY: $PWD"
+      #       schemachange -f migrations -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE1.CHANGE_HISTORY --create-change-history-table
+      #       SCHEMA_CHANGE_EXIT_CODE=$?
             
 
-      - run:
-          name: Rollback schemachange on failure
-          command: |
-            if [ $SCHEMA_CHANGE_EXIT_CODE -ne 0 ]; then
-            echo "Deployment failed. Rolling back changes..."
-            for script in $(ls rollback_scripts/*.sql | sort -r); do
-            rollback_script="${script/V/_rollback}"
-            schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE25.CHANGE_HISTORY --create-change-history-table
-            done
-            exit $SCHEMA_CHANGE_EXIT_CODE
-            fi
+      # - run:
+      #     name: Rollback schemachange on failure
+      #     command: |
+      #       if [ $SCHEMA_CHANGE_EXIT_CODE -ne 0 ]; then
+      #       echo "Deployment failed. Rolling back changes..."
+      #       for script in $(ls rollback_scripts/*.sql | sort -r); do
+      #       rollback_script="${script/V/_rollback}"
+      #       schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE1.CHANGE_HISTORY --create-change-history-table
+      #       done
+      #       exit $SCHEMA_CHANGE_EXIT_CODE
+      #       fi
 
-
+            
 workflows:
   version: 2
   deploy:
