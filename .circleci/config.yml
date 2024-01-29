@@ -39,14 +39,14 @@ jobs:
           name: Rollback schemachange on failure
           command: |
             if [ $SCHEMA_CHANGE_EXIT_CODE -ne 0 ]; then
-              echo "Deployment failed. Rolling back changes..."
-              CURRENT_VERSION="v2.0"
-              for script in $(ls schema_changes/${CURRENT_VERSION}*.sql | sort -r); do
-                rollback_script="${script/v/${CURRENT_VERSION}_rollback}"
-                schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE29.CHANGE_HISTORY --create-change-history-table
-              done
-              exit $SCHEMA_CHANGE_EXIT_CODE
+            echo "Deployment failed. Rolling back changes..."
+            for script in $(ls rollback_scripts/*.sql | sort -r); do
+            rollback_script="${script/V/_rollback}"
+            schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE25.CHANGE_HISTORY --create-change-history-table
+            done
+            exit $SCHEMA_CHANGE_EXIT_CODE
             fi
+
 
 workflows:
   version: 2

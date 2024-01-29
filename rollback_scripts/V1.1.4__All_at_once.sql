@@ -1,2 +1,3 @@
 -- Rollback script for V1.1.4__All_at_once.sql
-DROP TABLE IF EXISTS users;
+USE SCHEMA DEMO1;
+DROP TABLE IF EXISTS USERS1;
