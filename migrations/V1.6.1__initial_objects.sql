@@ -1,3 +1,5 @@
+alter  session set autocommit =false;
+
 START TRANSACTION NAME FIRST;
 CREATE SCHEMA DEMO1;
 
