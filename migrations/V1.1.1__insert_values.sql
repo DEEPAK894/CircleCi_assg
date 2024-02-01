@@ -1,5 +1,5 @@
 -- Use the INFORMATION_SCHEMA to get the current session's temporary schema
-SELECT CURRENT_SCHEME() AS temp_schema;
+CREATE SCHEMA temp_schema;
 
 -- Create a temporary table within the current session's schema
 CREATE TEMPORARY TABLE temp_schema.PRODUCT (
