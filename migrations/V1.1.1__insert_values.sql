@@ -2,12 +2,7 @@
 CREATE SCHEMA temp_schema;
 
 -- Create a temporary table within the current session's schema
-CREATE TEMPORARY TABLE temp_schema.PRODUCT (
-  -- Define your table columns here based on your CSV file
-  ID INT,
-  Name STRING,
-  -- Add more columns as needed
-);
+CREATE TEMPORARY TABLE temp_schema.PRODUCT ;
 
 -- Copy data into the temporary table
 COPY INTO temp_schema.PRODUCT
