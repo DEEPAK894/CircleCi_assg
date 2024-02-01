@@ -1,0 +1,11 @@
+ProductID,ProductName,Category,Price,Stock
+201,Cricket Bat,Bat,99.99,159
+202,Cricket Ball,Ball,9.99,300
+203,Batting Gloves,Protection,29.99,200
+204,Batting Pads,Protection,39.99,350
+205,Cricket Helmet,Protection,49.99,899
+206,Cricket Shoes,Footwear,59.99,223
+207,Power Bank,Accessories,19.99,100
+208,Camera,Electronics,29.99,130
+209,Laptop,Electronics,900,500
+210,Sunglasses,Accessories,29.99,135

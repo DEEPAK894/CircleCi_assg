@@ -1,3 +1,56 @@
+# version: 2.1
+
+# jobs:
+#   deploy-snowflake-changes-job:
+#     docker:
+#       - image: circleci/python:3.8
+
+#     environment:
+#       SF_ACCOUNT: LJYHXDV-HY17256
+#       SF_USERNAME: DEEPAK
+#       SF_ROLE: ACCOUNTADMIN
+#       SF_WAREHOUSE: COMPUTE_WH
+#       SF_DATABASE: SF_CICD
+#       SNOWFLAKE_PASSWORD: Deepu@822
+
+
+#     steps:
+#       - checkout
+
+#       - run:
+#           name: Use Python 3.8.x
+#           command: |
+#             echo "Python version: $(python --version)"
+      
+#       - run:
+#           name: Install schemachange
+#           command: |
+#             pip install schemachange
+#       - run:
+#           name: Run schemachange and Rollback on failure
+#           command: |
+#            echo "WORKING_DIRECTORY: $PWD"
+#            schemachange -f migrations -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE12.CHANGE_HISTORY --create-change-history-table
+#            SCHEMA_CHANGE_EXIT_CODE=$?
+
+#            if [ $SCHEMA_CHANGE_EXIT_CODE -ne 0 ]; then
+#            echo "Deployment failed. Rolling back changes..."
+#            for script in $(ls rollback_scripts/*.sql | sort -r); do
+#            rollback_script="${script/V/_rollback}"
+#            schemachange -f $rollback_script -a $SF_ACCOUNT -u $SF_USERNAME -r $SF_ROLE -w $SF_WAREHOUSE -d $SF_DATABASE -c $SF_DATABASE.SCHEMACHANGE12.CHANGE_HISTORY --create-change-history-table
+#            done
+#            exit $SCHEMA_CHANGE_EXIT_CODE
+#            fi
+          
+# workflows:
+#   version: 2
+#   deploy:
+#     jobs:
+#       - deploy-snowflake-changes-job:
+#           filters:
+#             branches:
+#               only:
+#                 - main   
 version: 2.1
 
 jobs:
@@ -12,7 +65,7 @@ jobs:
       SF_WAREHOUSE: COMPUTE_WH
       SF_DATABASE: SF_CICD
       SNOWFLAKE_PASSWORD: Deepu@822
-
+      CSV_FILE_PATH: ./dataset-Sheet1.csv  # Use a relative path
 
     steps:
       - checkout
@@ -41,7 +94,7 @@ jobs:
            done
            exit $SCHEMA_CHANGE_EXIT_CODE
            fi
-          
+
 workflows:
   version: 2
   deploy:
