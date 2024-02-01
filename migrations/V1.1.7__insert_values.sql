@@ -1,7 +1,4 @@
--- Start a transaction
-
-
--- Your DELETE statement
+-- Start a transactio
 DELETE FROM SF_CICD.TEMP_SCHEMA.PRODUCT
 WHERE ProductID = 204;
 
