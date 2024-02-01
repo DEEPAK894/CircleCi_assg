@@ -1,5 +1,5 @@
 -- Start a transaction
-BEGIN TRANSACTION;
+
 
 -- Your DELETE statement
 DELETE FROM SF_CICD.TEMP_SCHEMA.PRODUCT
